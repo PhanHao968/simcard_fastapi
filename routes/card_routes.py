@@ -3,7 +3,6 @@ from config.database import collection_name
 from models.card_model import Card
 from schemas.card_schemas import card_serializer,cards_serializer
 from bson import ObjectId
-from datetime import datetime
 
 card_api_router = APIRouter()
 
@@ -20,8 +19,8 @@ async def get_card(id: str):
 @card_api_router.post("/")
 async def post_card(card: Card):
     _id = collection_name.insert_one(dict(card))
-    card =cards_serializer(collection_name.find({"_id": _id.inserted_id}))
-    return {"status":"ok", "data": card}
+    card = cards_serializer(collection_name.find({"_id": _id.inserted_id}))
+    return {"status": "ok", "data": card}
 
 @card_api_router.put("/{id}")
 async def update_card(id: str, card: Card):

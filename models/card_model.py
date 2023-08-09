@@ -1,5 +1,6 @@
-from pydantic import BaseModel, root_validator
-from datetime import datetime
+from pydantic import BaseModel, root_validator,Field
+from datetime import datetime, timedelta
+from beanie import before_event, Replace, Insert
 
 class Card(BaseModel):
     network: str
@@ -8,9 +9,10 @@ class Card(BaseModel):
     category: str
     detail: str
     date: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
 
-    @root_validator(pre=True)
-    def set_default_date(cls, values):
-        if "date" not in values:
-            values["date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        return values
+    @before_event([Replace, Insert])
+    def update_update_at(self):
+        self.updated_at = datetime.utcnow()
+
