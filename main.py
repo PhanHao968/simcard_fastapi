@@ -1,7 +1,7 @@
 from fastapi import FastAPI
-from routes.card_routes import card_api_router
+from routes.sim_routes import sim_api_router
 
 
 app = FastAPI()
 
-app.include_router(card_api_router)
+app.include_router(sim_api_router)
