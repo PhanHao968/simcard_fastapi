@@ -4,7 +4,7 @@ from beanie import before_event, Replace, Insert
 
 class Sim(BaseModel):
     network: str
-    phone_number: str
+    phone_number: str = Field(..., description="Phone number is required")
     price: float
     category: str
     detail: str

@@ -1,4 +1,5 @@
-from fastapi import APIRouter,status,HTTPException
+from typing import List
+from fastapi import APIRouter, status, HTTPException, Query
 from config.database import collection_name
 from models.sim_model import Sim
 from schemas.sim_schemas import sims_serializer, sim_serializer
@@ -50,3 +51,20 @@ async def delete_sim(id: str):
     collection_name.find_one_and_delete({"_id": ObjectId(id)})
     return {"status": "Successfully"}
 
+@sim_api_router.get("/search/")
+async def search_sim_by_prefix(prefix: str = Query(..., description="Phone number prefix")):
+    query = {"phone_number": {"$regex": f"^{prefix}"}}
+    result = collection_name.find(query)
+
+    phone_numbers = [sim_serializer(sim) for sim in result]
+    return {"matching_phone_numbers": phone_numbers}
+
+@sim_api_router.post("/insert/")
+async def create_multiple_sims(sims: List[Sim]):
+    created_sims = []
+    for sim in sims:
+        _id = collection_name.insert_one(dict(sim))
+        created_sim = sims_serializer(collection_name.find_one({"_id": _id.inserted_id}))
+        created_sims.append(created_sim)
+
+    return {"status": "Successfully", "data": created_sims}
